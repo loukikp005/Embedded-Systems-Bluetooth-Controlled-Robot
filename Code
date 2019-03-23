@@ -1,0 +1,209 @@
+HEADER FILE – XC8.h
+
+// PIC18F45K50 Configuration Bit Settings
+
+// 'C' source line config statements
+
+#include <xc.h>
+
+// CONFIG1L
+#pragma config PLLSEL = PLL4X
+#pragma config CFGPLLEN = ON
+#pragma config CPUDIV = NOCLKDIV
+#pragma config LS48MHZ = SYS24X4
+
+// CONFIG1H
+#pragma config FOSC = INTOSCIO // Oscillator Selection (Internal oscillator)
+#pragma config PCLKEN = OFF
+#pragma config FCMEN = OFF
+#pragma config IESO = OFF
+
+// CONFIG2L
+#pragma config nPWRTEN = OFF
+#pragma config BOREN = OFF
+#pragma config BORV = 190
+#pragma config nLPBOR = OFF
+
+// CONFIG2H
+#pragma config WDTEN = OFF
+#pragma config WDTPS = 32768
+
+// CONFIG3H
+#pragma config CCP2MX = RC1
+#pragma config PBADEN = ON
+#pragma config T3CMX = RC0
+#pragma config SDOMX = RB3
+#pragma config MCLRE = OFF
+
+// CONFIG4L
+#pragma config STVREN = ON
+#pragma config LVP = ON
+#pragma config ICPRT = OFF
+#pragma config XINST = OFF
+
+// CONFIG5L
+#pragma config CP0 = OFF
+#pragma config CP1 = OFF
+#pragma config CP2 = OFF
+#pragma config CP3 = OFF
+
+// CONFIG5H
+#pragma config CPB = OFF
+#pragma config CPD = OFF
+
+// CONFIG6L
+#pragma config WRT0 = OFF
+#pragma config WRT1 = OFF
+#pragma config WRT2 = OFF
+#pragma config WRT3 = OFF
+
+// CONFIG6H
+#pragma config WRTC = OFF
+#pragma config WRTB = OFF
+#pragma config WRTD = OFF
+
+// CONFIG7L
+#pragma config EBTR0 = OFF
+#pragma config EBTR1 = OFF
+#pragma config EBTR2 = OFF
+#pragma config EBTR3 = OFF
+
+// CONFIG7H
+#pragma config EBTRB = OFF
+
+
+C CODE FILE – newmain.c
+
+#include <xc.h>
+#include "XC8.h"
+
+#define LED LATA4
+#define motorpin1 LATB0 //pin 2 of L293D
+#define motorpin2 LATB1 //pin 7 of L293D
+#define motorpin3 LATB2 //pin 10 of L293D
+#define motorpin4 LATB3 //pin 15 of L293D
+#define enablepinA LATB4 ////pin 1 of L293D
+#define enablepinB LATB5 ////pin 9 of L293D
+
+#define XTAL_FREQ 8000000/64
+#define Baud_value (((float)(XTAL_FREQ)/(float)baud_rate)-1)
+
+void Bluetooth_Init(long);
+void MSdelay(unsigned int val);
+char get_char();
+
+void Bluetooth_Init(long baud_rate)
+{
+float temp; 
+ANSELC=0;
+TRISC6=1;	
+TRISC7=1;	
+temp = Baud_value;
+SPBRG = (int)temp;	
+TXSTA=0x20;	
+RCSTA=0x90;	
+}
+
+char get_char()
+{
+ while(RCIF==0) /*wait for receive interrupt flag*/
+ {      
+ 
+ }
+ return(RCREG);	/*receive data is stored in RCREG register and return to main program */
+}
+
+
+void delay(unsigned int val)
+{
+unsigned int i,j; 
+for(i=0;i<=val;i++)
+for(j=0;j<100;j++);
+}
+ 
+void main()
+{
+
+OSCCON=0x62;	 
+
+char data;
+
+ANSELA=0;
+TRISA = 0;
+ANSELB=0;
+TRISB = 0;
+   
+Bluetooth_Init(9600);
+delay(50);
+
+enablepinA = 1;
+enablepinB = 1;
+
+
+while(1)
+{
+data = get_char();
+
+if(data =='1')
+{
+LED = 1;
+}
+if(data =='5')
+{
+LED = 0;
+}
+
+
+
+
+else if(data =='2')
+{
+motorpin1 = 0;
+motorpin2 = 1;
+motorpin3 = 0;
+motorpin4 = 1;
+delay(200);
+}
+else if(data =='6')
+{
+motorpin1 = 0;
+motorpin2 = 0;
+motorpin3 = 1;
+motorpin4 = 0;
+delay(200);
+}
+else if(data =='4')
+{
+motorpin1 = 1;
+motorpin2 = 0;
+motorpin3 = 0;
+motorpin4 = 0;
+delay(200);
+}
+else if(data =='8')
+{
+motorpin1 = 1;
+motorpin2 = 0;
+motorpin3 = 1;
+motorpin4 = 0;
+delay(200);
+}
+else if(data =='0')
+{
+motorpin1 = 0;
+motorpin2 = 0;
+motorpin3 = 0;
+motorpin4 = 0;
+delay(200);
+}
+else if(data =='9')
+{
+motorpin1 = 1;
+motorpin2 = 0;
+motorpin3 = 0;
+motorpin4 = 1;
+delay(200);
+}
+delay(200);
+}
+}
