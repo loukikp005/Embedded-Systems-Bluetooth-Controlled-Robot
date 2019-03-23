@@ -37,7 +37,6 @@ char get_char()
  return(RCREG);	/*receive data is stored in RCREG register and return to main program */
 }
 
-
 void delay(unsigned int val)
 {
 unsigned int i,j; 
@@ -63,7 +62,6 @@ delay(50);
 enablepinA = 1;
 enablepinB = 1;
 
-
 while(1)
 {
 data = get_char();
@@ -76,10 +74,6 @@ if(data =='5')
 {
 LED = 0;
 }
-
-
-
-
 else if(data =='2')
 {
 motorpin1 = 0;
